@@ -58,7 +58,7 @@ class Block extends JPanel
                 	setBackground(INACTIVE_COLOR);
                 	CuadriculaPanel.setValor(Block.this.row,Block.this.col,1);
                 }
-                CuadriculaPanel.imprimeMapa();	
+                CuadriculaPanel.imprimeMapa();	 
             }
 			
             @Override
