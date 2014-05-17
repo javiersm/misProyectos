@@ -1,26 +1,55 @@
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.ArrayList;
+import java.awt.Point;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.border.LineBorder;
 
 
-public class CuadriculaPanel extends JFrame {
+/** CLASE CUADRICULAPANEL
+ *  crea una clase al que le paso un array[][] 
+ *  el array NO tiene porque ser cuadrado (proporcional)
+ *  
+ *  Punto de salida es un '1'
+ *  Puntos donde puede ir el algoritmo '0'
+ *  Punto donde no puede pintar '-1
+ *   
+ * 
+ * @author JS
+ *
+ */
+
+class CuadriculaPanel extends JFrame {
 
     private final JFrame mainFrame = new JFrame();
     private final JPanel cuadriculaPanel = new JPanel();
     private static int[][] mapa; //guarda un array con rellenado con 0-1 para saber si la casilla esta activa o no
-        
+    
+    Point INICIO = new Point(0,0);
+    Point FIN = new Point(4,10);   //punto que quiero verifique si puede llegar
+    
+    public enum camino 
+    { 
+           TRANSITABLE(0),  
+           NO_TRANSITABLE(-1),  
+           INICIO(1),  
+           FIN(1); 
+
+          private int valor;
+
+          private camino(int valor){
+           this.valor = valor;
+          }
+
+        public int getvalor(){
+          return this.valor;
+         } 
+    }
+    
+    
 	public CuadriculaPanel(int[][] map) {
 	
 		this.mapa = map;
@@ -54,19 +83,18 @@ public class CuadriculaPanel extends JFrame {
 				
 				if(j<mapa[i].length)
 				{
-					System.out.print("0");
-						if(mapa[i][j]==1){
+						if(mapa[i][j]==camino.TRANSITABLE.valor || mapa[i][j]==camino.INICIO.valor){
 							System.out.print("X");
-							Block gb = new Block(i, j,true);
+							Block gb = new Block(i, j, mapa[i][j]);
 				            cuadriculaPanel.add(gb);
-						}else if(mapa[i][j]==0){
+						}else if(mapa[i][j]==camino.NO_TRANSITABLE.valor){
 							System.out.print("0");
-							Block pv = new Block(i, j,false);
+							Block pv = new Block(i, j,mapa[i][j]);
 				            cuadriculaPanel.add(pv);
 						}
 				}else{
 					System.out.print("E");
-					Block pv = new Block(i, j,false);
+					Block pv = new Block(i, j, -1);
 		            cuadriculaPanel.add(pv);
 				}
 				
@@ -112,13 +140,13 @@ public class CuadriculaPanel extends JFrame {
     //SYSTEM.NANOTIME()
     public static void main(String[] args) {
 
-    	final int[][] array = {{1,1,0,1,1,1,0},
-    						   {0,1,1,1,1,1,1,1,1},
-    						   {1,1,0,1,0,1,1},
-    						   {0,1,1,1,0,0,1},
-    						   {1,1,1,1,0,1,1,0,1},
-    						   {1,1,1,1,0,1,1,0,0},
-    						   {1,1,0,0,0,0,1,1,1},};
+    	final int[][] array = {{ 1, 0,-1,-1,-1,-1, 0},
+    						   { 0, 0,-1,-1,-1,-1,-1, -1, -1},
+    						   {-1, 0, 0,-1, 0,-1,-1},
+    						   { 0,-1, 0,-1, 0, 0, 0},
+    						   {-1,-1, 0,-1, 0,-1,-1, 0, -1},
+    						   {-1,-1, 0,-1, 0,-1,-1, 0,  0},
+    						   {-1,-1, 0, 0, 0, 0,-1, -1,-1}};
     	 
     	
         SwingUtilities.invokeLater(new Runnable() {
