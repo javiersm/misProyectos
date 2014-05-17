@@ -4,6 +4,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
 
@@ -20,8 +21,13 @@ class Block extends JPanel
     private final Color ACTIVE_COLOR = Color.BLACK;
     private final Color INACTIVE_COLOR = Color.RED;
     private final Color START_COLOR = Color.GREEN;
+    
     private final int BORDER_SIZE = 1;
+    private final int BORDER_SIZE_CHECK = 3;
     private final Color BORDER_COLOR = Color.gray;
+    private final Color BORDER_COLOR_CHECK = Color.cyan;
+    private boolean checked = false; //VAR q sirve para activar y desactivar el resaltado del borde. 
+    
     private int row;
     private int col;
     private int tipo = 0; //TIPO DE CASILLA
@@ -56,6 +62,20 @@ class Block extends JPanel
     	else
     		Block.this.tipo = 0;
     }
+
+    private void setBorderChecked(){
+    	checked = !checked;
+    	if(checked)
+    		this.setBorder(new LineBorder(BORDER_COLOR_CHECK,BORDER_SIZE_CHECK));
+    	else
+    		this.setBorder(new LineBorder(BORDER_COLOR,BORDER_SIZE));
+    }
+    
+    
+    
+    
+    
+    
     
     
     /**
@@ -77,11 +97,16 @@ class Block extends JPanel
         {
 			@Override
             public void mouseClicked(MouseEvent e) 
-			{				
-			   nextTipo();
-			   setTipoColor();
-			   System.out.printf("\n[%d][%d]     [isActivado]: %b",Block.this.col,Block.this.row, Block.this.activado);
-	           CuadriculaPanel.imprimeMapa();	 
+			{  
+			   if(SwingUtilities.isLeftMouseButton(e)){
+				   nextTipo();
+				   setTipoColor();
+				   System.out.printf("\n[%d][%d]     [isActivado]: %b",Block.this.col,Block.this.row, Block.this.activado);
+		           Cuadricula.imprimeMapa();
+			   }else if(SwingUtilities.isRightMouseButton(e)){
+				   setBorderChecked();
+			   }
+			   
 	        }
 			
             @Override
@@ -104,18 +129,6 @@ class Block extends JPanel
            }
         });
     
-    
-    
-    
-    
     }
-
-
-    
-    
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
 
 }
