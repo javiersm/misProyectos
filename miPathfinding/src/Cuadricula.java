@@ -13,17 +13,18 @@ import java.util.*;
  * cuadricula(grid) lleno de JPanel(Bloques) pequeños el array NO tiene porque
  * ser cuadrado (proporcional)
  * 
- * Punto de salida es un '1' Puntos donde puede ir el algoritmo '0' Punto donde
- * no puede pintar '-1
+ * Puntos donde puede ir el algoritmo '0' 
+ * Punto ocupados en el mapa '1'
+ * inicio= '-1
+ * fin= '-2'
  * 
  * 
  * @author JS
  * 
  */
 
-class Cuadricula extends JPanel {
-
-//	private final JFrame frame = new JFrame();
+class Cuadricula extends JPanel 
+{
 	private final JPanel cuadriculaPanel = new JPanel();
 	public JPanel getCuadriculaPanel() {
 		return cuadriculaPanel;
@@ -34,12 +35,36 @@ class Cuadricula extends JPanel {
 	private int mapaCols;
 	
 
-	Point INICIO = new Point(0, 0);
-	Point FIN = new Point(4, 10); // punto que quiero verifique si puede llegar
+	Point NODO_INICIO = new Point(0, 0);
+	Point NODO_FIN = new Point(4, 10); // punto que quiero verifique si puede llegar
+	
 	
 	//ARRAY LIST con los puntos que me faltan por verificar y los verificados
-	ArrayList<Point> verificados = new ArrayList<Point>();
-	ArrayList<Point> noVerificados = new ArrayList<Point>();
+	ArrayList<Point> openList = new ArrayList<Point>();
+	ArrayList<Point> closedList = new ArrayList<Point>();
+	boolean encontrado = false;
+	Block nodo;
+	
+	public void start(){
+		openList.add(NODO_INICIO);
+		do{
+			for(int i=0; i<openList.size();i++){
+				
+				
+				
+				System.out.println("");
+			}
+			System.out.println("");
+		}while(closedList.size()>0 || encontrado);
+		
+	}
+	
+	
+	public void checkCurrentNode(){
+		
+	}
+	
+	
 	
 	
 	
@@ -51,62 +76,27 @@ class Cuadricula extends JPanel {
 	public Cuadricula(int[][] map) {
 
 		mapa = generaMapaCompleto(map); //genera un mapa cuadrado 
-	
-		
-
-		// creo la cuadricula con el tamaño maximo
-		GridLayout grid = new GridLayout();// new GridLayout();
-		grid.setRows(mapaRows);
-		grid.setColumns(mapaCols);
-		grid.setHgap(2);
-		grid.setVgap(2);
-		cuadriculaPanel.setLayout(grid);
+		cuadriculaPanel.setLayout(new GridLayout(mapaRows, mapaCols, 1, 1));
 
 		// RELLENO LA CUADRICULA CON JPANEL
 		for (int i = 0; i < mapaRows; i++) {
-			System.out.println("i:");
 			for (int j = 0; j < mapaCols; j++) {
-
-				if (j < mapa[i].length) {
-					if (mapa[i][j] == camino.TRANSITABLE.valor
-							|| mapa[i][j] == camino.INICIO.valor) {
-						System.out.print("X");
-						Block gb = new Block(i, j, mapa[i][j]);
-						cuadriculaPanel.add(gb);
-					} else if (mapa[i][j] == camino.NO_TRANSITABLE.valor) {
-						System.out.print("0");
-						Block pv = new Block(i, j, mapa[i][j]);
-						cuadriculaPanel.add(pv);
-					}
-				} else {
-					System.out.print("E");
-					Block pv = new Block(i, j, -1);
-					cuadriculaPanel.add(pv);
+				if (mapa[i][j] == camino.TRANSITABLE.valor || mapa[i][j] == camino.INICIO.valor || mapa[i][j] == camino.NO_TRANSITABLE.valor) {
+					Block gb = new Block(i, j, mapa[i][j]);
+					cuadriculaPanel.add(gb);
 				}
-
 			}
-			System.out.println();
 		}
-
-//		frame.setLayout(new BorderLayout(5, 5));
-//		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-//		frame.add(cuadriculaPanel, BorderLayout.CENTER);
-//		frame.pack();
-//		frame.setVisible(true);
-		//return cuadriculaPanel;
 	}
 
-	public JPanel getCuadricula() {
-		return  cuadriculaPanel;
-	}
+	
 	
 	// cambio el array (mapa)
-	public static void setValor(int row, int col, int valor) {
+	public static void setValorMapa(int row, int col, int valor) {
 		if (mapa[row].length > col) {
 			System.out.println(mapa[row].length + "   col: " + col);
 			mapa[row][col] = valor;
 		}
-
 	}
 
 	// devuelve un array con el mapa existente
@@ -126,7 +116,7 @@ class Cuadricula extends JPanel {
 
 
 	public enum camino {
-		TRANSITABLE(0), NO_TRANSITABLE(-1), INICIO(1), FIN(1);
+		TRANSITABLE(0), NO_TRANSITABLE(1), INICIO(-1), FIN(-2);
 
 		private int valor;
 
@@ -150,7 +140,6 @@ class Cuadricula extends JPanel {
 					mapaCols = map[i].length;
 			}
 		}
-		
 		mapa = new int[mapaRows][mapaCols]; //creo un array con el valor maximo de fila y columna
 		for (int i = 0; i < mapa.length; i++) {
 			Arrays.fill(mapa[i], camino.NO_TRANSITABLE.valor);
@@ -161,7 +150,6 @@ class Cuadricula extends JPanel {
 				mapa[i][j] = map[i][j];
 			}
 		}
-		
 		System.out.printf("Generado MAPA de col:%d    row:%d ", mapaRows, mapaCols);
 		return mapa;
 	}

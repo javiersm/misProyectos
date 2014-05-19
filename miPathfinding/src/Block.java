@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -17,50 +18,74 @@ import javax.swing.border.LineBorder;
 class Block extends JPanel 
 {
 	private static final long serialVersionUID = 1L;
+	
+	//logica del algoritmo
+	private int row;
+    private int col;
+    private Block refPadre = null;
+    private int Heuristic = 0;
+    private int Costo = 0;
+    private int tipo; //el tipo de casilla puede ser transitable/no transitable, inicio/fin
+    private boolean activado = false;
+	
+    //block
 	private final int SIZE = 35;
-    private final Color ACTIVE_COLOR = Color.BLACK;
-    private final Color INACTIVE_COLOR = Color.RED;
-    private final Color START_COLOR = Color.GREEN;
+    private final Color COLOR_TRANSITABLE = Color.BLACK;
+    private final Color COLOR_NO_TRANSITABLE = Color.RED;
+    private final Color COLOR_INICIO = Color.GREEN;
+    private final Color COLOR_FIN = Color.orange;
     
+    //bordes
     private final int BORDER_SIZE = 1;
     private final int BORDER_SIZE_CHECK = 3;
     private final Color BORDER_COLOR = Color.gray;
     private final Color BORDER_COLOR_CHECK = Color.cyan;
     private boolean checked = false; //VAR q sirve para activar y desactivar el resaltado del borde. 
     
-    private int row;
-    private int col;
-    private int tipo = 0; //TIPO DE CASILLA
-    private boolean activado = false;
+   
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(SIZE, SIZE);
     }
     
+    public enum camino {
+		TRANSITABLE(0), NO_TRANSITABLE(1), INICIO(-1), FIN(-2);
+
+		private int valor;
+
+		private camino(int valor) {
+			this.valor = valor;
+		}
+
+		public int getvalor() {
+			return this.valor;
+		}
+	}
     
-    
+        
     private void setTipoColor()
     {       
-        if(Block.this.tipo == 0)
-    		setBackground(ACTIVE_COLOR);
-    	else if(Block.this.tipo == -1)
-    		setBackground(INACTIVE_COLOR);
-    	else if (Block.this.tipo == 1)
-    		setBackground(START_COLOR);
+        if(Block.this.tipo == camino.TRANSITABLE.valor)
+    		setBackground(COLOR_TRANSITABLE);
+    	else if(Block.this.tipo == camino.NO_TRANSITABLE.valor)
+    		setBackground(COLOR_NO_TRANSITABLE);
+    	else if (Block.this.tipo == camino.INICIO.valor)
+    		setBackground(COLOR_INICIO);
     	else
-    		setBackground(INACTIVE_COLOR);
+    		setBackground(COLOR_NO_TRANSITABLE);
     }
     
+    //SOLO SIRVE PARA CAMBIAR EL COLOR Y EL TIPO DE LA CASILLA CON EL RATON
     private void nextTipo()
     {       
-        if(Block.this.tipo == 0)
-        	Block.this.tipo = -1;
-    	else if(Block.this.tipo == -1)
-    		Block.this.tipo =  1;
-    	else if (Block.this.tipo == 1)
-    		Block.this.tipo = 0;
+        if(Block.this.tipo == camino.TRANSITABLE.valor)
+        	Block.this.tipo = camino.NO_TRANSITABLE.valor;
+    	else if(Block.this.tipo == camino.NO_TRANSITABLE.valor)
+    		Block.this.tipo = camino.TRANSITABLE.valor;
+    	else if (Block.this.tipo == camino.INICIO.valor)
+    		Block.this.tipo = camino.TRANSITABLE.valor;
     	else
-    		Block.this.tipo = 0;
+    		Block.this.tipo = camino.TRANSITABLE.valor;
     }
 
     private void setBorderChecked(){
@@ -70,11 +95,6 @@ class Block extends JPanel
     	else
     		this.setBorder(new LineBorder(BORDER_COLOR,BORDER_SIZE));
     }
-    
-    
-    
-    
-    
     
     
     
@@ -120,8 +140,13 @@ class Block extends JPanel
 
             @Override
             public void mouseEntered(MouseEvent e) {
-            	//System.out.println("GRID_ACTIVE:" + GridPanel.this.activado);
-            	setTipoColor();
+            	 if(SwingUtilities.isLeftMouseButton(e)){
+    				   Block.this.tipo = camino.NO_TRANSITABLE.valor;
+    				   setTipoColor();
+    			   }else if(SwingUtilities.isRightMouseButton(e)){
+    				 Block.this.tipo = camino.TRANSITABLE.valor;
+  				  setTipoColor();
+    			   }
             }
 
             @Override
