@@ -249,8 +249,8 @@ class Cuadricula extends JPanel
 		NODO_INICIO.setCasillaInicio(true);
 		
 		
-		//NODO_FIN = mapa[0][11];
-		NODO_FIN = mapa[8][1]; //no tiene fin
+		NODO_FIN = mapa[0][11];
+		//NODO_FIN = mapa[8][1]; //no tiene fin
 		//NODO_FIN = mapa[5][0];
 		NODO_FIN.setCasillaFin(true);
 	}
