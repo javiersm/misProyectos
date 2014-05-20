@@ -30,91 +30,248 @@ class Cuadricula extends JPanel
 		return cuadriculaPanel;
 	}
 
-	private static int[][] mapa; // guarda un array con rellenado con 0-1 para saber si la casilla esta activa o no
+	private static Block[][] mapa; // guarda un array con rellenado con 0-1 para saber si la casilla esta activa o no
 	private int mapaRows;
 	private int mapaCols;
 	
 
-	Point NODO_INICIO = new Point(0, 0);
-	Point NODO_FIN = new Point(4, 10); // punto que quiero verifique si puede llegar
-	
+	Block NODO_INICIO;
+	Block NODO_FIN; // punto que quiero verifique si puede llegar
+	Block currentNode;
 	
 	//ARRAY LIST con los puntos que me faltan por verificar y los verificados
-	ArrayList<Point> openList = new ArrayList<Point>();
-	ArrayList<Point> closedList = new ArrayList<Point>();
+	ArrayList<Block> openList = new ArrayList<Block>();
+	ArrayList<Block> closedList = new ArrayList<Block>();
 	boolean encontrado = false;
-	Block nodo;
+	boolean continuar = false;
 	
+	
+	
+	
+
+	
+	private void addToOpenList(Block node){
+		if(!openList.contains(node)){
+			System.out.println("Introduciendo en openList!" + node.getName());
+			openList.add(node);
+		}
+	}
+	
+	private void deleteFromOpenList(Block currentNode){
+		if(openList.contains(currentNode)){
+			System.out.println("encontrado ... borrando!");
+			openList.remove(currentNode);
+		}
+	}
+	
+	private void addToClosedList(Block node){
+		if(!closedList.contains(node)){
+			System.out.println("Introduciendo en openList!");
+			closedList.add(node);
+		}
+	}
+	
+	//IMPRIME LA OPENLIST Y CLOSE LIST PARA VER COMO VA.....
+	private void printOpenList(){
+		System.out.println("_________ OPEN LIST ______________");
+		for(int i=0; i<openList.size();i++){
+			System.out.printf("  %s",openList.get(i).getName());
+			if(i%10== 0 && i>1)
+				System.out.println("");
+		}
+		System.out.println("\n___________________________________");
+	}
+	
+
 	public void start(){
 		openList.add(NODO_INICIO);
-		do{
-			for(int i=0; i<openList.size();i++){
+		continuar = true;
+		System.out.println("mapaRows: " + mapaRows + "  mapaCols: " + mapaCols);
+		
+		while(openList.size()>0 && !encontrado){
+			for(int i=0; i<openList.size() && continuar==true;i++)
+			{
 				
+				currentNode = openList.get(i);
+				currentNode.setBorderChecked();
+				System.out.println("\n******* checkCurrentBlock: "+openList.get(i).getName());
 				
+				checkCurrentBlock(currentNode);
+				addToClosedList(currentNode);
 				
-				System.out.println("");
+				if(encontrado){
+					System.out.println("BIENNN. ENCONTRADO EL BLOQUE DEE FIN !");
+					pintaCaminoRegreso(currentNode);
+					return;
+				}
+				printOpenList();
+				
+				deleteFromOpenList(currentNode);
+
 			}
 			System.out.println("");
-		}while(closedList.size()>0 || encontrado);
+		}
 		
+		if(!encontrado)
+			System.out.println("PROGRAMA TERMINADO NO SE HA ENCONTRADO EL FIN");
+	}
+	
+	private void pintaCaminoRegreso(Block nodo){
+		System.out.println("\n ____________________ pintando camino de vuelta _______________________");
+		System.out.println(NODO_FIN.getName());
+		do{
+			System.out.println(nodo.getName() + "   ");
+			nodo.setCaminoEncontradoColor();
+			nodo = nodo.getRefPadre();
+		}while(nodo.getRefPadre() != null);
+		System.out.println(NODO_INICIO.getName());
+		System.out.println("_______________________________________________________________________");
 	}
 	
 	
-	public void checkCurrentNode(){
+	public void checkCurrentBlock(Block nodo){
 		
+		checkNorth(nodo.getRow(), nodo.getCol());
+		checkSouth(nodo.getRow(), nodo.getCol());
+		checkEast(nodo.getRow(), nodo.getCol());
+		checkWest(nodo.getRow(), nodo.getCol());
+	}
+	
+	private void checkNorth(int row, int col)
+	{	
+		--row;
+		if((col>=0 && col<mapaCols) && (row>=0 && row<mapaRows))
+		{
+			System.out.printf("\nmirando en NORTH......   [%d][%d]",row,col);
+			if(mapa[row][col].getTipo() == camino.TRANSITABLE.valor && !closedList.contains(mapa[row][col]))
+			{
+				if(mapa[row][col].equals(NODO_FIN)){
+					encontrado = true;
+				}else{
+					mapa[row][col].setRefPadre(currentNode);
+					mapa[row][col].setCosto(currentNode.getCosto() + 10);
+					addToOpenList(mapa[row][col]); //sino es el que estoy buscando meto el nodo en la lista abierta
+				}
+			}else{
+				System.out.println("camino no transitable");
+			}
+		}else{
+			System.out.println("North: esta fuera del rango!"+"["+row+"]["+col+"]");
+		}
+	}
+	
+	private void checkSouth(int row, int col)
+	{
+		++row;
+		if((col>=0 && col<mapaCols) && (row>=0 && row<mapaRows))
+		{
+			System.out.printf("\nmirando en SOUTH......   [%d][%d]",row,col);
+			if(mapa[row][col].getTipo() == camino.TRANSITABLE.valor && !closedList.contains(mapa[row][col]))
+			{
+				if(mapa[row][col].equals(NODO_FIN)){
+					encontrado = true;
+				}else{
+					mapa[row][col].setRefPadre(currentNode);
+					mapa[row][col].setCosto(currentNode.getCosto() + 10);
+					addToOpenList(mapa[row][col]); //sino es el que estoy buscando meto el nodo en la lista abierta
+				}
+			}else{
+				System.out.println("Camino no transitable");
+			}		
+		}else{
+			System.out.println("South: esta fuera del rango!" +"["+row+"]["+col+"]");
+		}
+	}
+	
+	private void checkEast(int row, int col){
+		++col;
+		if((col>=0 && col<mapaCols) && (row>=0 && row<mapaRows))
+		{
+			System.out.printf("\nmirando en EAST......   [%d][%d]",row,col);
+			if(mapa[row][col].getTipo() == camino.TRANSITABLE.valor && !closedList.contains(mapa[row][col]))
+			{
+				if(mapa[row][col].equals(NODO_FIN)){
+					encontrado = true;
+				}else{
+					mapa[row][col].setRefPadre(currentNode);
+					mapa[row][col].setCosto(currentNode.getCosto() + 10);
+					addToOpenList(mapa[row][col]); //sino es el que estoy buscando meto el nodo en la lista abierta
+				}
+			}else{
+				System.out.println("Camino no transitable");
+			}		
+		}else{
+			System.out.println("EAST: esta fuera del rango!"+"["+row+"]["+col+"]");
+		}
+	}
+	
+	private void checkWest(int row, int col){
+		--col;
+		if((col>=0 && col<mapaCols) && (row>=0 && row<mapaRows))
+		{
+			System.out.printf("\nmirando en WEST......   [%d][%d]",row,col);
+			if(mapa[row][col].getTipo() == camino.TRANSITABLE.valor && !closedList.contains(mapa[row][col]))
+			{
+				if(mapa[row][col].equals(NODO_FIN)){
+					encontrado = true;
+				}else{
+					mapa[row][col].setRefPadre(currentNode);
+					mapa[row][col].setCosto(currentNode.getCosto() + 10);
+					addToOpenList(mapa[row][col]); //sino es el que estoy buscando meto el nodo en la lista abierta
+				}
+			}else{
+				System.out.println("Camino no transitable");
+			}		
+		}else{
+			System.out.println("WEST: esta fuera del rango!"+"["+row+"]["+col+"]");
+		}
 	}
 	
 	
 	
-	
-	
-	
-	/**
-	 * Constructor
-	 * @param map
-	 */
+
 	public Cuadricula(int[][] map) {
 
 		mapa = generaMapaCompleto(map); //genera un mapa cuadrado 
+		
 		cuadriculaPanel.setLayout(new GridLayout(mapaRows, mapaCols, 1, 1));
-
-		// RELLENO LA CUADRICULA CON JPANEL
 		for (int i = 0; i < mapaRows; i++) {
 			for (int j = 0; j < mapaCols; j++) {
-				if (mapa[i][j] == camino.TRANSITABLE.valor || mapa[i][j] == camino.INICIO.valor || mapa[i][j] == camino.NO_TRANSITABLE.valor) {
-					Block gb = new Block(i, j, mapa[i][j]);
-					cuadriculaPanel.add(gb);
-				}
+					cuadriculaPanel.add(mapa[i][j]);
 			}
 		}
+		
+		NODO_INICIO = mapa[2][0];
+		//NODO_INICIO = mapa[6][13];
+		NODO_INICIO.setCasillaInicio(true);
+		
+		
+		//NODO_FIN = mapa[0][11];
+		NODO_FIN = mapa[8][1]; //no tiene fin
+		//NODO_FIN = mapa[5][0];
+		NODO_FIN.setCasillaFin(true);
+		
+		
+		start();
 	}
 
 	
 	
-	// cambio el array (mapa)
-	public static void setValorMapa(int row, int col, int valor) {
-		if (mapa[row].length > col) {
+	
+	/** Set valor en mapa[][] para que sea transitable o no.
+	 * 
+	 * @param row
+	 * @param col
+	 * @param tipo  pues pongo '0'si es transitable o  '1' si esta ocupado
+	 */
+	public static void setValorMapa(int row, int col, int tipo) 
+	{
+		if ((mapa[row].length >= row) &&  (row > 0) && (mapa[col].length >= col) && (col > 0)) {
 			System.out.println(mapa[row].length + "   col: " + col);
-			mapa[row][col] = valor;
+			mapa[row][col].setTipo(tipo);
 		}
 	}
-
-	// devuelve un array con el mapa existente
-	public int[][] getMapa() {
-		return Arrays.copyOf(mapa, mapa.length);
-	}
-
-	public static void imprimeMapa() {
-		System.out.println("\n******** MAP PRINT *************");
-		for (int i = 0; i < mapa.length; i++) {
-			for (int j = 0; j < mapa[i].length; j++) {
-				System.out.printf("%3s",mapa[i][j]);
-			}
-			System.out.println();
-		}
-	}
-
-
+	
 	public enum camino {
 		TRANSITABLE(0), NO_TRANSITABLE(1), INICIO(-1), FIN(-2);
 
@@ -129,8 +286,8 @@ class Cuadricula extends JPanel
 		}
 	}
 
-	private int[][] generaMapaCompleto(int[][]map){
-		int[][] mapa;
+	private Block[][] generaMapaCompleto(int[][]map){
+		Block[][] mapa;
 		//calcula el tamaño maximo de fila y columna
 		for (int i = 0; i < map.length; i++) {
 			if (mapaRows < map.length)
@@ -140,17 +297,21 @@ class Cuadricula extends JPanel
 					mapaCols = map[i].length;
 			}
 		}
-		mapa = new int[mapaRows][mapaCols]; //creo un array con el valor maximo de fila y columna
+		//creo un array[][] de Bloques y lo inicializo
+		mapa = new Block[mapaRows][mapaCols]; 
 		for (int i = 0; i < mapa.length; i++) {
-			Arrays.fill(mapa[i], camino.NO_TRANSITABLE.valor);
-		}
-		
-		for (int i = 0; i < map.length; i++) {
-			for(int j=0; j<map[i].length;j++){
-				mapa[i][j] = map[i][j];
+			for(int j=0; j<mapa[i].length;j++){
+				mapa[i][j] = new Block(i,j, camino.TRANSITABLE.valor); 
 			}
 		}
-		System.out.printf("Generado MAPA de col:%d    row:%d ", mapaRows, mapaCols);
+		
+		//cargo los valores del array que pase por parametro en mi array de bloques
+		for (int i = 0; i < map.length; i++) {
+			for(int j=0; j<map[i].length;j++){
+				mapa[i][j].setTipo(map[i][j]); 
+			}
+		}
+		System.out.printf("Generado MAPA de  [row:%d | col:%d] \n", mapaRows, mapaCols);
 		return mapa;
 	}
 

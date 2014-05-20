@@ -7,6 +7,7 @@ import java.awt.event.MouseListener;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
+import javax.swing.text.Position;
 
 
 /** CLASE BLOCK, CREA LOS CUADRADITOS 
@@ -20,13 +21,50 @@ class Block extends JPanel
 	private static final long serialVersionUID = 1L;
 	
 	//logica del algoritmo
+	public String name;
+	public String getName() {
+		return name;
+	}
+
+
 	private int row;
     private int col;
     private Block refPadre = null;
     private int Heuristic = 0;
     private int Costo = 0;
-    private int tipo; //el tipo de casilla puede ser transitable/no transitable, inicio/fin
-    private boolean activado = false;
+    
+    private boolean casillaInicio = false;
+    private boolean casillaFin = false;
+    
+    public boolean isCasillaInicio() {
+		return casillaInicio;
+	}
+	public void setCasillaInicio(boolean casillaInicio) {
+		this.casillaInicio = casillaInicio;
+		setTipoColor();
+	}
+	public boolean isCasillaFin() {
+		return casillaFin;
+	}
+	public void setCasillaFin(boolean casillaFin) {
+		this.casillaFin = casillaFin;
+		setTipoColor();
+	}
+
+
+	private int tipo; //el tipo de casilla puede ser (0)TRANSITABLE / NO TRANSITABLE(1)
+    public int getTipo() {
+		return tipo;
+	}
+	public void setTipo(int tipo) {
+		this.tipo = tipo;
+		setTipoColor();
+	}
+
+
+	private boolean activado = false;
+    
+    
 	
     //block
 	private final int SIZE = 35;
@@ -65,15 +103,31 @@ class Block extends JPanel
         
     private void setTipoColor()
     {       
-        if(Block.this.tipo == camino.TRANSITABLE.valor)
-    		setBackground(COLOR_TRANSITABLE);
+    	if(Block.this.isCasillaInicio() || Block.this.isCasillaFin()){
+    		
+    		if(Block.this.isCasillaInicio()==true && Block.this.isCasillaFin()==true){
+    			System.out.println("ERROR. NO PUEDEN SER CASILLA DE INICIO Y DE FIN A LA VEZ!!");
+    		}else{
+    			if(Block.this.isCasillaInicio() == true)
+    				setBackground(COLOR_INICIO);
+    			else
+    				setBackground(COLOR_FIN);
+    		}
+    	}else if(Block.this.tipo == camino.TRANSITABLE.valor)
+    			setBackground(COLOR_TRANSITABLE);
     	else if(Block.this.tipo == camino.NO_TRANSITABLE.valor)
+    			setBackground(COLOR_NO_TRANSITABLE);
+    	else{
+    		System.out.println("Error. setTipoColor no coincide con ninguna tipo");
     		setBackground(COLOR_NO_TRANSITABLE);
-    	else if (Block.this.tipo == camino.INICIO.valor)
-    		setBackground(COLOR_INICIO);
-    	else
-    		setBackground(COLOR_NO_TRANSITABLE);
+    	}
+    		
     }
+    
+    public void setCaminoEncontradoColor(){
+    	setBackground(Color.WHITE);
+    }
+    
     
     //SOLO SIRVE PARA CAMBIAR EL COLOR Y EL TIPO DE LA CASILLA CON EL RATON
     private void nextTipo()
@@ -88,7 +142,7 @@ class Block extends JPanel
     		Block.this.tipo = camino.TRANSITABLE.valor;
     }
 
-    private void setBorderChecked(){
+    public void setBorderChecked(){
     	checked = !checked;
     	if(checked)
     		this.setBorder(new LineBorder(BORDER_COLOR_CHECK,BORDER_SIZE_CHECK));
@@ -109,8 +163,7 @@ class Block extends JPanel
         this.col = col;
         this.tipo = tipo;
         this.setBorder(new LineBorder(BORDER_COLOR,BORDER_SIZE));
-       // System.out.println("r:"+row+"  col: "+col+ "   tipo: "+Block.this.tipo);
-        
+        name = "["+row+","+col+"]";
         setTipoColor();
     		
         this.addMouseListener(new MouseListener() 
@@ -121,8 +174,7 @@ class Block extends JPanel
 			   if(SwingUtilities.isLeftMouseButton(e)){
 				   nextTipo();
 				   setTipoColor();
-				   System.out.printf("\n[%d][%d]     [isActivado]: %b",Block.this.col,Block.this.row, Block.this.activado);
-		           Cuadricula.imprimeMapa();
+				   //System.out.printf("\n[%d][%d]     [isActivado]: %b",Block.this.col,Block.this.row, Block.this.activado);
 			   }else if(SwingUtilities.isRightMouseButton(e)){
 				   setBorderChecked();
 			   }
@@ -155,5 +207,29 @@ class Block extends JPanel
         });
     
     }
+	public int getCosto() {
+		return Costo;
+	}
+	public void setCosto(int costo) {
+		Costo = costo;
+	}
+	public Block getRefPadre() {
+		return refPadre;
+	}
+	public void setRefPadre(Block refPadre) {
+		this.refPadre = refPadre;
+	}
+	public int getRow() {
+		return row;
+	}
+	public void setRow(int row) {
+		this.row = row;
+	}
+	public int getCol() {
+		return col;
+	}
+	public void setCol(int col) {
+		this.col = col;
+	}
 
 }
