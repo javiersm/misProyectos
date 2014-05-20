@@ -84,6 +84,7 @@ class Cuadricula extends JPanel
 	
 
 	public void start(){
+		
 		openList.add(NODO_INICIO);
 		continuar = true;
 		System.out.println("mapaRows: " + mapaRows + "  mapaCols: " + mapaCols);
@@ -91,7 +92,10 @@ class Cuadricula extends JPanel
 		while(openList.size()>0 && !encontrado){
 			for(int i=0; i<openList.size() && continuar==true;i++)
 			{
-				
+				System.out.println("pulsa una tecla para continuar");
+				//do{
+					//continuar = false; 
+				//}while(continuar==false);
 				currentNode = openList.get(i);
 				currentNode.setBorderChecked();
 				System.out.println("\n******* checkCurrentBlock: "+openList.get(i).getName());
@@ -127,7 +131,6 @@ class Cuadricula extends JPanel
 		System.out.println(NODO_INICIO.getName());
 		System.out.println("_______________________________________________________________________");
 	}
-	
 	
 	public void checkCurrentBlock(Block nodo){
 		
@@ -250,9 +253,6 @@ class Cuadricula extends JPanel
 		NODO_FIN = mapa[8][1]; //no tiene fin
 		//NODO_FIN = mapa[5][0];
 		NODO_FIN.setCasillaFin(true);
-		
-		
-		start();
 	}
 
 	
