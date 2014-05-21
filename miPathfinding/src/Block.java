@@ -33,7 +33,35 @@ class Block extends JPanel
     private int Heuristic = 0;
     private int Costo = 0;
     
-    private boolean casillaInicio = false;
+    
+    private int Fcost = 0; // la formula es [ Fcost = Gcost + Hcost ]
+    private int Gcost = 0; //Aqui guardo el coste de moverme de este bloque al siquiente (coste 10 para movimientos horizonta-vertical y coste 14 para movimientos diagonales)
+    private int Hcost = 0; //Heuristica: es un costo aproximado lo calcula mirando a cuantas casillas de distancia de este bloque esta el bloque FIN y luego lo multiplico x10 
+    
+    
+    
+    
+    public int getFcost() {
+		return Fcost;
+	}
+	public void setFcost(int fcost) {
+		Fcost = fcost;
+	}
+	public int getGcost() {
+		return Gcost;
+	}
+	public void setGcost(int gcost) {
+		Gcost = gcost;
+	}
+	public int getHcost() {
+		return Hcost;
+	}
+	public void setHcost(int hcost) {
+		Hcost = hcost;
+	}
+
+
+	private boolean casillaInicio = false;
     private boolean casillaFin = false;
     
     public boolean isCasillaInicio() {
