@@ -30,18 +30,26 @@ class Block extends JPanel
 	private int row;
     private int col;
     private Block refPadre = null;
-    private int Heuristic = 0;
-    private int Costo = 0;
+
     
-    
-    private int Fcost = 0; // la formula es [ Fcost = Gcost + Hcost ]
+
+
+
+	private int Fcost = 0; // la formula es [ Fcost = Gcost + Hcost ]
     private int Gcost = 0; //Aqui guardo el coste de moverme de este bloque al siquiente (coste 10 para movimientos horizonta-vertical y coste 14 para movimientos diagonales)
     private int Hcost = 0; //Heuristica: es un costo aproximado lo calcula mirando a cuantas casillas de distancia de este bloque esta el bloque FIN y luego lo multiplico x10 
-    
+    private boolean usarHeuristica = true;
+    public boolean isUsandoHeuristica() {
+		return usarHeuristica;
+	}
+	public void setUsarHeuristica(boolean usarHeuristica) {
+		this.usarHeuristica = usarHeuristica;
+	}
     
     
     
     public int getFcost() {
+    	Fcost = Gcost + Hcost;
 		return Fcost;
 	}
 	public void setFcost(int fcost) {
@@ -51,13 +59,39 @@ class Block extends JPanel
 		return Gcost;
 	}
 	public void setGcost(int gcost) {
-		Gcost = gcost;
+		Gcost =  gcost;
 	}
 	public int getHcost() {
 		return Hcost;
 	}
-	public void setHcost(int hcost) {
-		Hcost = hcost;
+	public void setHcost(Block currentNode ,Block NODO_FIN) {
+		
+		
+		if(usarHeuristica == true){
+			Hcost = (int) (Math.sqrt( (Math.pow((NODO_FIN.getRow()- currentNode.row),2) + Math.pow((NODO_FIN.getCol() - currentNode.col),2)))*10000);
+			System.out.println("HCOST: "+ Hcost);
+		}
+		
+		
+		/** Esta manera de implementar la heuristica es mucho peor en este escenario. Pero serviría para hacer un juego en el que laa busqueda del camino
+		 *  no sea la más rápida(perfecta) siempre.
+		if(usarHeuristica == true){
+			Hcost = (Math.abs(currentNode.row - NODO_FIN.getRow()*100) +  (Math.abs(currentNode.col - NODO_FIN.getCol())*100));
+			System.out.println("ABSX:" );
+			System.out.println("HCOST: "+ Hcost);
+		}*/
+		
+		
+		/*
+		// CALCULO de la variable heurística mediante el algoritmo manhattan
+		 int dx = Math.abs( (NODO_FIN.getRow()- currentNode.row));
+		 System.out.print("nodofin:"+NODO_FIN.getRow() + "this.row:"+this.row);
+		 System.out.print("\tdx" + dx);
+		 int dy = Math.abs( (NODO_FIN.getCol() - currentNode.col));
+		 System.out.print("\tdy" + dy);
+		//esta es la distancia aproximada al NODO_FIN
+		Hcost = (dx+dy);
+		System.out.println("HEURISTICA: "+ Hcost);*/
 	}
 
 
@@ -234,13 +268,13 @@ class Block extends JPanel
            }
         });
     
-    }
+    }/*
 	public int getCosto() {
 		return Costo;
 	}
 	public void setCosto(int costo) {
 		Costo = costo;
-	}
+	}*/
 	public Block getRefPadre() {
 		return refPadre;
 	}

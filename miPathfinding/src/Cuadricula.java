@@ -43,6 +43,8 @@ class Cuadricula extends JPanel
 	ArrayList<Block> openList = new ArrayList<Block>();
 	ArrayList<Block> closedList = new ArrayList<Block>();
 	boolean encontrado = false;
+	public int numComprobaciones = 0;
+	
 	
 	// esto es para ejecutar paso a paso
 	public static boolean sigPaso = false;
@@ -75,7 +77,7 @@ class Cuadricula extends JPanel
 	private void printOpenList(){
 		System.out.println("\n_________ OPEN LIST ______________");
 		for(int i=0; i<openList.size();i++){
-			System.out.printf("  %s coste:%d",openList.get(i).getName(),openList.get(i).getCosto());
+			System.out.printf("  %s coste:%d",openList.get(i).getName(),openList.get(i).getFcost());
 			if(i%10== 0 && i>1)
 				System.out.println("");
 		}
@@ -84,7 +86,8 @@ class Cuadricula extends JPanel
 	
 
 	public void start(){
-		
+		openList.ensureCapacity(60);
+		closedList.ensureCapacity(100); 
 		openList.add(NODO_INICIO);
 		sigPaso = true;
 		System.out.println("mapaRows: " + mapaRows + "  mapaCols: " + mapaCols);
@@ -94,7 +97,8 @@ class Cuadricula extends JPanel
 		{	
 			if(modePasoAPaso)
 				sigPaso = false;
-		
+			
+			numComprobaciones++;
 			//Elijo el nodo que menos costeF (total) tenga para ser procesado
 			currentNode = openList.get(0);
 			for(int i=0; i<openList.size();i++){
@@ -123,15 +127,19 @@ class Cuadricula extends JPanel
 
 
 	private void pintaCaminoRegreso(Block nodo){
+		int distanciaNodos = 1;
 		System.out.println("\n ____________________ pintando camino de vuelta _______________________");
 		System.out.println(NODO_FIN.getName());
 		do{
+			++distanciaNodos;
 			System.out.println(nodo.getName() + "   ");
 			nodo.setCaminoEncontradoColor();
 			nodo = nodo.getRefPadre();
 		}while(nodo.getRefPadre() != null);
 		System.out.println(NODO_INICIO.getName());
-		System.out.println("_______________________________________________________________________");
+		System.out.println("_______________________________________________________________________ ");
+		System.out.println("Distancia: "+distanciaNodos +" cuadros");
+		System.out.println("NumComprobaciones: " + numComprobaciones);
 	}
 	
 	public void checkCurrentBlock(Block nodo){
@@ -154,7 +162,8 @@ class Cuadricula extends JPanel
 					encontrado = true;
 				}else{
 					mapa[row][col].setRefPadre(currentNode);
-					mapa[row][col].setCosto(currentNode.getCosto() + 10);
+					mapa[row][col].setGcost(currentNode.getGcost() + 10);
+					mapa[row][col].setHcost(currentNode, NODO_FIN);
 					addToOpenList(mapa[row][col]); //sino es el que estoy buscando meto el nodo en la lista abierta
 				}
 			}else{
@@ -177,7 +186,8 @@ class Cuadricula extends JPanel
 					encontrado = true;
 				}else{
 					mapa[row][col].setRefPadre(currentNode);
-					mapa[row][col].setCosto(currentNode.getCosto() + 10);
+					mapa[row][col].setGcost(currentNode.getGcost() + 10);
+					mapa[row][col].setHcost(currentNode, NODO_FIN);
 					addToOpenList(mapa[row][col]); //sino es el que estoy buscando meto el nodo en la lista abierta
 				}
 			}else{
@@ -199,7 +209,8 @@ class Cuadricula extends JPanel
 					encontrado = true;
 				}else{
 					mapa[row][col].setRefPadre(currentNode);
-					mapa[row][col].setCosto(currentNode.getCosto() + 10);
+					mapa[row][col].setGcost(currentNode.getGcost() + 10);
+					mapa[row][col].setHcost(currentNode, NODO_FIN);
 					addToOpenList(mapa[row][col]); //sino es el que estoy buscando meto el nodo en la lista abierta
 				}
 			}else{
@@ -221,7 +232,8 @@ class Cuadricula extends JPanel
 					encontrado = true;
 				}else{
 					mapa[row][col].setRefPadre(currentNode);
-					mapa[row][col].setCosto(currentNode.getCosto() + 10);
+					mapa[row][col].setGcost(currentNode.getGcost() + 10);
+					mapa[row][col].setHcost(currentNode, NODO_FIN);
 					addToOpenList(mapa[row][col]); //sino es el que estoy buscando meto el nodo en la lista abierta
 				}
 			}else{
@@ -238,21 +250,15 @@ class Cuadricula extends JPanel
 	public Cuadricula(int[][] map) {
 
 		mapa = generaMapaCompleto(map); //genera un mapa cuadrado 
-		
 		cuadriculaPanel.setLayout(new GridLayout(mapaRows, mapaCols, 1, 1));
 		for (int i = 0; i < mapaRows; i++) {
 			for (int j = 0; j < mapaCols; j++) {
 					cuadriculaPanel.add(mapa[i][j]);
 			}
 		}
-		
-		//NODO_INICIO = mapa[2][0];
-		//NODO_INICIO = mapa[35][13];
+		NODO_INICIO = mapa[2][0];
 		NODO_INICIO.setCasillaInicio(true);
-		
-		NODO_FIN = mapa[0][11];
-		//NODO_FIN = mapa[8][1]; //no tiene fin
-		//NODO_FIN = mapa[5][0];
+		NODO_FIN = mapa[8][1];
 		NODO_FIN.setCasillaFin(true);
 	}
 	
@@ -267,15 +273,12 @@ class Cuadricula extends JPanel
 						cuadriculaPanel.add(mapa[i][j]);
 				}
 			}
-			//NODO_INICIO = mapa[2][0];
-			NODO_INICIO = mapa[30][13];
+			NODO_INICIO = mapa[03][4];
 			NODO_INICIO.setCasillaInicio(true);
-			
-			NODO_FIN = mapa[0][11];
-			//NODO_FIN = mapa[8][1]; //no tiene fin
-			//NODO_FIN = mapa[5][0];
+			NODO_FIN = mapa[20][35];
 			NODO_FIN.setCasillaFin(true);
 		}
+
 	}
 
 	
