@@ -24,7 +24,7 @@ public class InicioFrame extends JFrame {
 	public static Cuadricula cuadricula;
 	private static JFrame frame;
 	private static PanelInferior panelInferior;
-	private static int tamañoArray = 40;
+	private static int tamañoArray = 80;
 	private static int[][] array= 	  { {  1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0},
 										{  0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0 },
 										{  0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1 }, 
